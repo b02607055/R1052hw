@@ -1,0 +1,94 @@
+---
+title: "空氣品質監測日污染指標"
+author: "農經系 許家瑜"
+date: "2017/4/30"
+output: html_document
+---
+
+##資料為4/14~4/28日各地測站收集每小時空污指標濃度後換算為每日平均濃度
+
+PM10指粒徑在10微米以下之粒子，又稱浮游塵。
+主要來源包括道路揚塵、車輛排放廢氣、露天燃燒、營建施工及農地耕作等，或由原生性空氣污染物轉化成之二次污染物，由於粒徑小於10微米以下，能深入人體肺部深處，如該粒子附著其他污染物，則將加深對呼吸系統之危害。
+
+```{r}
+rm(list = ls(all=TRUE))
+Sys.setlocale(category = "LC_ALL", locale = "en_US.UTF-8")
+library(dplyr)
+library(knitr)
+rawdata = read.csv(
+  'airpollutiontest.csv',
+  encoding = 'UTF-8',
+  stringsAsFactors = FALSE)
+```
+##各地測站懸浮微粒日平均濃度
+```{r}
+
+df <- rawdata %>% group_by(SiteName)
+result1 = summarise(df, mean(PM10SubIndex))
+write.table(result1, "result1")
+data = read.table("result1")
+kable(data)
+result1
+```
+
+##4/14~28所有測站整體平均
+```{r}
+
+mean1=mean(rawdata$PM10SubIndex,na.rm = T)
+mean1
+```
+##每日懸浮微粒平均濃度
+```{r }
+
+df <- rawdata %>% group_by(MonitorDate)
+result11 = summarise(df, mean(PM10SubIndex))
+write.table(result11, "result11")
+data = read.table("result11")
+kable(data)
+```
+
+##不符合台灣標準之測站地點：24小時平均值不得超過125 μg／m3
+```{r}
+dfTWSd <- rawdata %>% group_by(SiteName)
+result2 = dfTWSd %>% filter(PM10SubIndex>125)
+TWPM10=result2  %>% group_by(SiteName)
+result5=summarise(TWPM10)
+write.table(result5, "result5")
+data = read.table("result5")
+kable(data)
+result5
+
+
+
+
+```
+
+
+##不符合歐盟標準之測站地點：24小時平均值不得超過50 μg／m3
+```{r}
+dfEUSd <- rawdata %>% group_by(SiteName)
+result3 = dfEUSd %>% filter(PM10SubIndex>50)
+EUPM10=result3  %>% group_by(SiteName)
+result4=summarise(EUPM10)
+write.table(result4, "result4")
+#data = read.table("result4")
+#kable(data)
+result4
+```
+
+
+#台灣PM10標準過低
+PM10與PM2.5同屬一級致癌物，因我國標準低於歐盟或其他指標，因此少被討論。以歐盟標準而言，台灣共有65個地區PM10超標，更有環團直指這樣的標準是河蟹六輕。
+相關文章：台灣健康空氣行動聯盟<a href="https://bit.ly/2WzIsgk">【2017年PM10惡化　#空污改善成笑話？！】</a>
+<br>
+<br>
+<br>
+<br>
+<br><br>
+<br>
+<br>
+
+```{r}
+
+```
+
