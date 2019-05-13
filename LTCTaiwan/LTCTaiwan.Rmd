@@ -20,12 +20,19 @@ output: html_document
 
 
 ```{r echo=FALSE}
+library(knitr)
+library(kableExtra)
+library(dplyr)
 rawdata = read.csv(
   '3years.csv',
   encoding = 'UTF-8',
   header = T)
-rawdata
+#rawdata
 #df <- rawdata %>% group_by(Area)
+
+kable(rawdata)%>%
+  kable_styling() %>%
+  scroll_box(height = "500px")
 ```
 
 
@@ -36,9 +43,11 @@ rawdata
 ```{r echo=FALSE}
 #result2 = summarise(df, mean(Proportion.of.Aged.Population))
 #write.table(result2, "result2.csv")
-library(knitr)
+
 data = read.table('result2.csv')
-kable(data)
+kable(data)%>%
+  kable_styling() %>%
+  scroll_box(height = "200px")
 ```
 
     從以上資料可以發現：
@@ -69,46 +78,58 @@ kable(data)
 #write.table(result1, "result1.csv")
 library(knitr)
 data = read.table('result1.csv')
-kable(data)
+kable(data)%>%
+  kable_styling() %>%
+  scroll_box(height = "500px")
 ```
-
+<br>
+<br>
+<br>
 
     從以上資料可以發現：
     嘉義市(6275.9)、基隆市(4031.4)、台東縣(3719.8)、屏東縣(3600.3)、花蓮縣、新北市、彰化縣、宜蘭縣、台南市(3010.5)，差異非常大，尤其以嘉義高出許多，原因可能和老年人口比率最高有關，同時和區域土地、物價、成本有關。
     
+<br>
+<br>
+<br>
 
-#「床數」和「各種照護人員數」相關係數分析
 
-#結合照護床數資料及照護人員資料
+##「床數」和「各種照護人員數」相關係數分析
+
+###結合照護床數資料及照護人員資料
 ```{r echo=FALSE}
 rawdata = read.table('result1.csv',
                      encoding = 'UTF-8',header = T)
 #df <- rawdata %>% group_by(Area)
 library(knitr)
 data = read.table('result1.csv')
-kable(data)
+#kable(data)
 
 rdata = read.csv('1.csv',
                  header = TRUE)
 #df1 <- rdata %>% group_by(Area)
 library(knitr)
 data = read.csv('1.csv')
-kable(data)
+#kable(data)
 
 #newTable = rawdata %>% left_join(rdata, by = c("Area" = "Area"))
 #df2 <- newTable [2:9]
 library(knitr)
 data = read.table('newTable.csv')
-kable(data)
+kable(data)%>%
+  kable_styling() %>%
+  scroll_box(height = "500px")
 ```
 
 
-#解失能老年人口、床數和照護人員的相關性
+##了解失能老年人口、床數和照護人員的相關性
 ```{r echo=FALSE}
 #df3 <- cor(df2, use="complete.obs", method="kendall") 
 library(knitr)
 data = read.table('cor.csv')
-kable(data)
+kable(data)%>%
+  kable_styling() %>%
+  scroll_box(height = "300px")
 ```
 
 #資料分析
