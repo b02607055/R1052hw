@@ -1,0 +1,80 @@
+---
+title: "hw#11-R07342005"
+author: "Chiou, Yi-Hsuan"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+
+```{r}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+options(stringsAsFactors = F)
+library(rgdal)
+library(tidyverse)
+```
+
+```{r}
+town_shp <- readOGR('/Users/chiacolate/Downloads/R1072-master/shapefiles/', layer = "town", encoding = 'utf-8', stringsAsFactors = F)
+
+town_shp@data <- town_shp@data %>% 
+  mutate(TOWNNAME = iconv(TOWNNAME, "utf-8"), 
+         COUNTYNAME = iconv(COUNTYNAME, "utf-8"))
+```
+
+```{r}
+
+library(readxl)
+TAINAN <- read_excel("twdata/TAINAN.xlsx")
+View(TAINAN)
+
+#tainan_income <- readxl::read_xlsx('twdata/TAINAN.xlsx') 
+tainan_income <- read.csv("/Users/chiacolate/Downloads/R1072-master/twdata/TAINAN.csv")
+tainan_town <- town_shp@data %>% filter(COUNTYNAME == "臺南市")
+
+#view(tainan_town)
+```
+
+```{r}
+town_shp_df <- broom::tidy(town_shp, region = 'TOWNNAME') %>% 
+  filter(id %in% tainan_town$TOWNNAME) %>% 
+  left_join(tainan_income, by = c("id" = "district"))
+
+#view(town_shp_df)
+```
+
+```{r}
+library(jsonlite)
+twzipcode_json <- jsonlite::fromJSON("twdata/twzipcode.json")[[1]]
+tainan_zipcode <- twzipcode_json %>% 
+  filter(city == "台南市")
+
+#view(tainan_zipcode)
+```
+
+```{r}
+town_shp_df %>% 
+  ggplot() + 
+    geom_polygon(aes(x = long, y = lat, group = group, fill = income), colour = 'gray')+
+    scale_fill_gradient2(low = "#ff9797", mid = "#ff2d2d", high = "#930000", midpoint = median(town_shp_df$income))+
+    geom_text(data = tainan_zipcode, aes(x = lng, y = lat, label = district), family = "Heiti TC Light", color = "black", size = 2.0)+
+    ggplot2::coord_map(xlim = c(119.9, 120.5), ylim = c(23.42, 22.85))+
+    theme_void()
+```
+
+
+
+
+
+
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+
