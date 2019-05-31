@@ -172,13 +172,13 @@ kable(data)%>%
 
 ###(ggmap is unavailable now)
 
-<a href="https://ibb.co/WndZkLX"><img src="https://i.ibb.co/kKrj4tT/download.png" alt="download" border="0"></a>
+<a><img src="https://i.ibb.co/kKrj4tT/download.png" alt="download" border="0"></a>
 
 ###(using rgeos)
 
     區域顏色的深淺代表每個照服員照護的人數（以總床數計）多寡，顏色越紅越缺乏照護人力。由此圖顯示照護人力缺口最大的地區為交通相對困難的離島澎湖及山地南投。
 
-<a href="https://ibb.co/G2jxR1x"><img src="https://i.ibb.co/2tBndLn/ratio.png" alt="ratio" border="0"></a>
+<a><img src="https://i.ibb.co/Jm2dTQw/rgeos.png" alt="rgeos" border="0"></a>
 
 
 
@@ -202,12 +202,12 @@ library(mapproj)
 #county_shp_df %>% 
   #ggplot() + 
     #geom_polygon(aes(x = long, y = lat, group = group, fill = people.to.take.care.of), colour = 'gray') + scale_size(range = c(-6,11)) +
-    #scale_fill_gradient2(high = "#FF8080", low = "#FFE1E0", midpoint = mean(data$people.to.take.care.of), name="number of people to take of") +
+    #scale_fill_gradient2(high = "#FF8080", low = "#FFE1E0", midpoint = mean(data$people.to.take.care.of), name="number of people to take of\n(per person)") +
     #theme(text=element_text(family="Heiti TC Light", size=14)) +
     #ggplot2::coord_map(xlim = c(119, 122.5), ylim = c(21.8, 25.5)) +
     #theme_void()
 
-#ggsave("ratio.png", plot = last_plot(), device = NULL, path = NULL,
+#ggsave("rgeos.png", plot = last_plot(), device = NULL, path = NULL,
   #scale = 1, width = NA, height = NA, units = c("in", "cm", "mm"),
   #dpi = 300, limitsize = TRUE)
 
