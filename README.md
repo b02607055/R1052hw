@@ -5,7 +5,7 @@
 
 <a href="https://b02607055.github.io/R1052hw/LTCTaiwan/LTC_Taiwan_regeos.html" target="_blank"  title="〈長期照護–高齡化來襲，各縣市政府準備好了嗎？〉
 ">〈長期照護–高齡化來襲，各縣市政府準備好了嗎？〉
-</a>join data+ ggmap
+</a>ggmap+ rgeos
 
 <a href="https://b02607055.github.io/R1052hw/statistic/exam_cor.html" target="_blank"  title="〈TIMSS 2011 Taiwan數學成績變異數分析〉
 ">〈TIMSS 2011 Taiwan數學成績變異數分析〉
@@ -25,7 +25,7 @@
 
 <a href="https://b02607055.github.io/R1052hw/barplot_rice/HW1.html" target="_blank"  title="〈稻米直接給付勢在必行〉
 ">〈稻米直接給付勢在必行〉
-</a>barplot</p>
+</a>gganimate</p>
 
 
 
