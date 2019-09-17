@@ -2,8 +2,24 @@
 title: "長期照護--高齡化來襲，各縣市政府準備好了嗎？"
 author: "B02607055 許家瑜"
 date: "2017/5/23"
-output: html_document
+output: 
+  html_document:
+    code_folding: hide
+    theme: spacelab
+    toc: yes
+    toc_depth: 3
+    toc_float:
+      collapsed: false
 ---
+<style>
+
+body {
+    color: #333333;
+    font-size: 14px;
+}
+
+</style>
+
 
 #長照議題的重要性
 

@@ -1,0 +1,164 @@
+---
+title: "statistic practice"
+author: "NTU AGEC Chiayu"
+date: "2017"
+output:
+  html_document:
+    highlight: zenburn
+    number_sections: yes
+    theme: cerulean
+    toc: yes
+editor_options:
+  chunk_output_type: inline
+---
+<style>
+strong{
+    color:dimgrey;
+}
+
+li code{
+    color: dimgrey;
+
+}
+.sourceCode{
+    margin-bottom: 0px;
+}
+pre{
+    border-radius: 0;
+}
+</style>
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(bbplot)
+library(Hmisc)
+library(coefplot)
+```
+
+
+# readfiles from TIMSS 2011 Taiwan
+```{r message==FALSE}
+dta <- read.table(file = "data/TIMSS2011TW.txt", 
+                  header = TRUE)
+str(dta)
+head(dta)
+summary(dta)
+```
+
+
+# plot to observe
+```{r}
+#math score box plot by gender
+ggplot(data = dta, aes(x = gender, y = math)) +
+ geom_boxplot() + coord_flip() +
+ labs( y = 'math', x = 'gender', 
+       title = 'Mathematical Score Box')+
+  theme(
+  panel.background = element_rect(fill = "#BFD5E3", colour = "#6D9EC1",
+                                size = 2, linetype = "solid"),
+  panel.grid.major = element_line(size = 0.5, linetype = 'solid',
+                                colour = "white"), 
+  panel.grid.minor = element_line(size = 0.25, linetype = 'solid',
+                                colour = "white")
+  )
+```
+
+# Confidence interval
+```{r}
+with(dta, 
+     tapply(math, gender,
+     function(x) 
+       c(mean(x) + c(-2, 2) * sd(x)/sqrt(length(x)))))
+```
+
+# t-test
+```{r}
+t.test(math ~ gender, data = dta) #unknown VAR but not equal ->using Welch
+t.test(math ~ gender, data = dta, var.equal = TRUE) #same VAR
+```
+#difference by parents 
+```{r}
+#order in levels
+dta$parental.education <- factor(dta$parental.education, 
+                       levels = c('elementary school',
+                                  'junior high school',
+                                  'high school',
+                                  'college', 
+                                  'university above'))
+#observe mean by parents
+tapply(dta$math, dta$parental.education, mean)
+#plot to observe
+ggplot(data = dta, 
+       aes(x = parental.education, y = math)) +
+  stat_summary(fun.data = 'mean_cl_boot', size = 1) +
+  scale_y_continuous(breaks = seq(500, 660, by = 20)) +
+  geom_hline(yintercept = mean(dta$math) , 
+             linetype = 'dotted') +
+  labs(x = '父母教育程度', y = '數學平均分數',title = '數學平均分數與父母教育程度關係') +
+  coord_flip() +
+  theme(text=element_text(family="Gen Jyuu GothicX"),
+        panel.background = element_rect(fill = "#BFD5E3", colour = "#6D9EC1",
+                                size = 2, linetype = "solid"),
+        panel.grid.major = element_line(size = 0.5, linetype = 'solid',
+                                colour = "white"), 
+        panel.grid.minor = element_line(size = 0.25, linetype = 'solid',
+                                colour = "white"))
+```
+
+
+#anova
+```{r}
+anova(m1 <- lm(math ~ parental.education, data = dta))
+#plot
+ggplot(data = dta, 
+       aes(group = parental.education, 
+          y = math, x = educational.resources)) +
+  geom_point(color='dimgrey') +
+  stat_smooth(method = 'lm', se = F) +
+  stat_smooth(aes(group = parental.education, 
+          y = math, x = educational.resources), 
+          method = 'lm', se = F) + 
+  facet_grid( . ~  parental.education) +
+  labs(x = '教育資源', y = '數學分數', title = '教育資源與數學分數')+
+  theme(text=element_text(family="Gen Jyuu GothicX"),
+        panel.background = element_rect(fill = "#BFD5E3", colour = "#6D9EC1",
+                                size = 2, linetype = "solid"))
+
+```
+
+#model
+```{r}
+#add educational.resources into model
+anova(m2 <- update(m1, . ~ . + 
+            educational.resources, data = dta))
+#only educational.resources in model
+anova(m3 <- update(m2, . ~ . - 
+            parental.education,  data = dta))
+#to list
+res_lm <- lapply(list(m1, m2, m3), summary)
+#same educational.resources(observe parental.education)
+(res_lm[[2]]$r.sq - res_lm[[3]]$r.sq)/res_lm[[2]]$r.sq
+anova(m3, m2)
+#same parental.education(observe educational.resources)
+(res_lm[[2]]$r.sq - res_lm[[1]]$r.sq)/res_lm[[1]]$r.sq
+anova(m1, m2)
+```
+##plot
+```{r}
+m2 <- lm(math ~ parental.education+educational.resources- 1, 
+         data = dta)
+coefplot(m2, xlab = '估計值', ylab = '迴歸變項', title = '反應變項 = 數學分數')+
+  theme(text=element_text(family="Gen Jyuu GothicX"),
+        panel.background = element_rect(fill = "#BFD5E3", colour = "#6D9EC1",
+                                size = 2, linetype = "solid"))
+
+```
+
+#statistic pkg
+    require(lattice) for Q-Q plot <br>
+    require(MASS)<br>
+    require(heplots)<br>
+    require(corrplot)<br>
+    require(effects)<br>
+    library(lm.beta)<br>
+

@@ -17,38 +17,34 @@ options(knitr.table.format = "html")
     PM10指粒徑在10微米以下之粒子，又稱浮游塵。主要來源包括道路揚塵、車輛排放廢氣、露天燃燒、營建施工及農地耕作等，或由原生性空氣污染物轉化成之二次污染物，由於粒徑小於10微米以下，能深入人體肺部深處，如該粒子附著其他污染物，則將加深對呼吸系統之危害。
 
 ```{r echo=FALSE}
-rm(list = ls(all=TRUE))
-Sys.setlocale(category = "LC_ALL", locale = "en_US.UTF-8")
 library(dplyr)
-
-rawdata = read.csv(
+rawdata <- read.csv(
   'airpollutiontest.csv',
   encoding = 'UTF-8',
   stringsAsFactors = FALSE)
 ```
+
 ##各地測站懸浮微粒日平均濃度
 ```{r}
 df <- rawdata %>% group_by(SiteName)
-result1 = summarise(df, mean(PM10SubIndex))
+result1 <- summarise(df, mean(PM10SubIndex))
 write.table(result1, "result1")
-data = read.table("result1")
+data <- read.table("result1")
 kable(data) %>%
   kable_styling() %>%
   scroll_box(height = "500px")
 
 ```
 
-##4/14~28所有測站整體平均
+##所有測站整體平均
 ```{r}
-
-mean1=mean(rawdata$PM10SubIndex,na.rm = T)
-mean1
+mean_all <- mean(rawdata$PM10SubIndex,na.rm = T)
+mean_all
 ```
 ##每日懸浮微粒平均濃度
 ```{r }
-
 df <- rawdata %>% group_by(MonitorDate)
-result11 = summarise(df, mean(PM10SubIndex))
+result11 <- summarise(df, mean(PM10SubIndex))
 write.table(result11, "result11")
 data = read.table("result11")
 kable(data)%>%
@@ -58,10 +54,13 @@ kable(data)%>%
 
 ##不符合台灣標準之測站地點：24小時平均值不得超過125 μg／m3
 ```{r}
-dfTWSd <- rawdata %>% group_by(SiteName)
-result2 = dfTWSd %>% filter(PM10SubIndex>125)
-TWPM10=result2  %>% group_by(SiteName)
-result5=summarise(TWPM10)
+
+
+TWPM10 <-rawdata %>%
+  group_by(SiteName) %>%
+  filter(PM10SubIndex>125)%>%
+  group_by(SiteName)
+result5 <- summarise(TWPM10)
 write.table(result5, "result5")
 data = read.table("result5")
 kable(data)%>%
@@ -76,9 +75,9 @@ kable(data)%>%
 
 ##不符合歐盟標準之測站地點：24小時平均值不得超過50 μg／m3
 ```{r}
-dfEUSd <- rawdata %>% group_by(SiteName)
-result3 = dfEUSd %>% filter(PM10SubIndex>50)
-EUPM10=result3  %>% group_by(SiteName)
+
+EUPM10 <-df %>% group_by(SiteName) %>% filter(PM10SubIndex>50) %>%group_by(SiteName)
+
 result4=summarise(EUPM10)
 write.table(result4, "result4")
 data = read.table("result4")
