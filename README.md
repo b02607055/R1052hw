@@ -7,6 +7,10 @@
 ">〈長期照護–高齡化來襲，各縣市政府準備好了嗎？〉
 </a>join data+ ggmap
 
+<a href="https://b02607055.github.io/R1052hw/statistic/exam_cor.html" target="_blank"  title="〈TIMSS 2011 Taiwan數學成績變異數分析〉
+">〈TIMSS 2011 Taiwan數學成績變異數分析〉
+</a>coefplot
+
 <a href="https://b02607055.github.io/R1052hw/plotly_NTUteacher/plotly_ntuteacher_html.html" target="_blank"  title="〈台大助教裁員風波〉
 ">〈台大助教裁員風波〉
 </a>plot_ly
@@ -22,4 +26,6 @@
 <a href="https://b02607055.github.io/R1052hw/barplot_rice/HW1.html" target="_blank"  title="〈稻米直接給付勢在必行〉
 ">〈稻米直接給付勢在必行〉
 </a>barplot</p>
+
+
 
