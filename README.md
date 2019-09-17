@@ -3,7 +3,7 @@
 
 
 
-<a href="https://b02607055.github.io/R1052hw/LTCTaiwan/LTCTaiwan.html" target="_blank"  title="〈長期照護–高齡化來襲，各縣市政府準備好了嗎？〉
+<a href="https://b02607055.github.io/R1052hw/LTCTaiwan/LTC_Taiwan_regeos.html" target="_blank"  title="〈長期照護–高齡化來襲，各縣市政府準備好了嗎？〉
 ">〈長期照護–高齡化來襲，各縣市政府準備好了嗎？〉
 </a>join data+ ggmap
 
