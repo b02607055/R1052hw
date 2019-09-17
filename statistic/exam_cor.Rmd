@@ -103,6 +103,7 @@ ggplot(data = dta,
                                 colour = "white"), 
         panel.grid.minor = element_line(size = 0.25, linetype = 'solid',
                                 colour = "white"))
+
 ```
 
 

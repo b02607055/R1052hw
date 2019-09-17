@@ -29,14 +29,16 @@ body {
 
     因應高齡化的社會議題，衛福部推出了長期照護十年計劃。政府訂立了一系列規章及輔助辦法等以協助高齡國民的生活。在政策架構當中，地方縣市政府的配合是不可或缺的一環。中央訂立規則並在預算上給予協助，長照十年計劃的第一線仍是各縣市政府。面對高齡化的壓力，各縣市政府現有的照護資源是否能足夠支持各縣市的高齡照護？本文就各縣市人口高齡化的程度與安養機構床數缺口及照護人力來做分析。
 
-##列出資料
+#data
 
-### 103~105年 全國老人福利機構資源分布表
+## 103~105年 全國老人福利機構資源分布表
 
 
 ```{r include=FALSE}
 library(knitr)
 library(kableExtra)
+library(ggplot2)
+library(ggalt)
 library(dplyr)
 options(stringsAsFactors = F)
 #install.packages("rgeos")
@@ -53,49 +55,66 @@ library(maptools)
 
 
 
-```{r}
-county_shp <- readOGR('/Users/chiacolate/Documents/R1052hw/R1052hw/LTCTaiwan/shapefiles', layer = "county", encoding = 'utf-8', stringsAsFactors = F)
-county_shp@data$COUNTYNAME <- iconv(county_shp@data$COUNTYNAME, "utf-8")
-str(county_shp@data)
 
-summary(county_shp)
-```
 
 ```{r echo=FALSE}
 rawdata = read.csv(
   '3years.csv',
   encoding = 'UTF-8',
   header = T)
-#rawdata
-#df <- rawdata %>% group_by(Area)
-
 kable(rawdata)%>%
   kable_styling() %>%
   scroll_box(height = "500px")
 ```
 
 
-##反問資料：在103~105年資料中
-
-###「老年人口比率TOP3縣市」
+# Q：在103~105年資料中「老年人口比率TOP3縣市」
 
 ```{r echo=FALSE}
-#result2 = summarise(df, mean(Proportion.of.Aged.Population))
+df <- rawdata %>% group_by(Area)
+result2 <- summarise(df, mean(Proportion.of.Aged.Population))
 #write.table(result2, "result2.csv")
-
-data = read.table('result2.csv')
-kable(data)%>%
+kable(result2)%>%
   kable_styling() %>%
   scroll_box(height = "200px")
+
+
 ```
+###plot
+```{r}
+
+result2$Area <- factor(result2$Area, levels = result2$Area[order(result2$`mean(Proportion.of.Aged.Population)`)])
+bars <- ggplot(result2, aes(x = result2$Area, y = result2$`mean(Proportion.of.Aged.Population)`)) +
+  geom_bar(stat="identity", 
+           position="identity", 
+           fill="#F36380") +
+  labs(x=NULL,
+       y="老化程度",
+       title="各縣市老化比率",
+       subtitle = "103~105年平均", 
+       caption="Source: 衛福部")+ coord_flip()+
+  theme(text=element_text(family="Gen Jyuu GothicX"),
+        plot.background=element_rect(fill="#f7f7f7"),
+        panel.background=element_rect(fill="#f7f7f7"),
+        panel.grid.major = element_line(size = 0.5, linetype = 'solid',
+                                colour = "white"), 
+        panel.grid.minor = element_line(size = 0.25, linetype = 'solid',
+                                colour = "white"))+ 
+  scale_y_continuous(expand = c(0, 0))
+
+plot(bars)
+save(bars, file = "aged.jpg")
+```
+
 <br>
 <br>
 
     從以上資料可以發現：
     老年人口比率最高為嘉義縣(17.33%)，其次依序為雲林縣(16.57%)、南投縣(15.27%)、臺北市 (14.83%) 和澎湖縣(14.80%)，顯示出人口老化的區域差異——農業地區老人人口比率高。
 
-###「各縣市平均失能老年人口數」及「各縣市住宿式機構的平均床？」
+#Q :「各縣市平均失能老年人口數」及「各縣市住宿式機構的平均床」
 
+    住宿式機構：
     "住宿式機構共分為六大類，
     (一)養護型機構
     提供生活無法自理長者生活照顧服務，可收住需鼻胃管或導尿管護理服務照顧需求長者。
@@ -112,69 +131,77 @@ kable(data)%>%
     --台北榮民總醫院社會工作室<長期照顧機構住宿式服務>
     
 
-<a href="http://www.sangha.tw/upload/magazine/%7BC1489C76-38EA-419B-97FF-384EB6FF7BF1%7D_p53-56%20%BB%7B%C3%D1%A5x%C6W%AA%F8%B7%D3%B8%EA%B7%BD.pdf" target="_blank">【認識我的第二個家--機構住宿式服務】</a>
+<a href="http://www.sangha.tw/upload/magazine/%7BC1489C76-38EA-419B-97FF-384EB6FF7BF1%7D_p53-56%20%BB%7B%C3%D1%A5x%C6W%AA%F8%B7%D3%B8%EA%B7%BD.pdf" target="_blank">source【認識我的第二個家--機構住宿式服務】</a>
 
 ```{r echo=FALSE}
-#result1 = summarise(df, mean(Disabled.Aged.Population), mean(Total.Beds))
+df <- rawdata %>% group_by(Area)
+
+result1 <- summarise(df, mean(Disabled.Aged.Population), mean(Total.Beds))
+result1 <- result1%>%
+  mutate(gap = result1$'mean(Total.Beds)' - result1$'mean(Disabled.Aged.Population)')
 #write.table(result1, "result1.csv")
-library(knitr)
-data = read.table('result1.csv')
-kable(data)%>%
+kable(result1)%>%
   kable_styling() %>%
   scroll_box(height = "500px")
 ```
+###plot
+```{r}
+result1 <- result1%>%
+  filter(Area != "Taiwan")
+result1$Area <- factor(result1$Area, levels = result1$Area[order(result1$gap)])
+
+g <- ggplot(data=result1, aes(x=result1$`mean(Total.Beds)`, xend=result1$`mean(Disabled.Aged.Population)`, y=Area,yend=Area, group=Area))+ 
+  geom_segment(color="#b2b2b2", size=0.25)+
+  geom_dumbbell(size=2.5,color="#EDDADD",colour_xend="#F36380",colour_x = "#FBBBC8")+
+  theme(plot.title = element_text(hjust=0.5, face="bold"),
+        plot.background=element_rect(fill="#f7f7f7"),
+        panel.background=element_rect(fill="#f7f7f7"),
+        text = element_text(family = "Gen Jyuu GothicX"),
+        axis.text.y = element_text(size = 10))+
+  labs(x=NULL, 
+       y=NULL, 
+       title="各縣市平均失能老年人口數與照護床數缺口", 
+       subtitle="床數 vs 失能老人數", 
+       caption="Source: 衛福部") 
+g
+
+#ggsave(g ,filename = "gap.jpg")
+```
+
 <br>
 <br>
 <br>
 
     從以上資料可以發現：
-    失能老年人口數和床數的資源間存在差異，相較之下住宿式機構床數明顯不足，無法負擔縣市內失能老年人口的照護需求。
+    失能老年人口數和床數的資源間存在差異，住宿式機構床數明顯不足，無法負擔縣市內失能老年人口的照護需求。以地區而言，都市地區（如北、高）高齡人口多，照護需求高但床數缺口甚大。
     
 <br>
 <br>
 <br>
 
 
-##「床數」和「各種照護人員數」相關係數分析
+#Q :「床數」和「照護人員數」相關係數分析
 
-###結合照護床數資料及照護人員資料
+##結合照護床數資料及照護人員資料
 ```{r echo=FALSE}
-rawdata = read.table('result1.csv',
-                     encoding = 'UTF-8',header = T)
-#df <- rawdata %>% group_by(Area)
-library(knitr)
-data = read.table('result1.csv')
-#kable(data)
-
-rdata = read.csv('1.csv',
-                 header = TRUE)
-#df1 <- rdata %>% group_by(Area)
-library(knitr)
-data = read.csv('1.csv')
-#kable(data)
-
-#newTable = rawdata %>% left_join(rdata, by = c("Area" = "Area"))
-#df2 <- newTable [2:9]
-library(knitr)
-data = read.table('newTable.csv')
-kable(data)%>%
-  kable_styling() %>%
-  scroll_box(height = "500px")
+rdata = read.csv('1.csv',header = TRUE)
+result1$Area <- as.character(result1$Area)
+newTable <- result1 %>% 
+  left_join(rdata, by = c("Area" = "Area"))%>%
+  drop_na()
 ```
 
 
 ##了解失能老年人口、床數和照護人員的相關性
 ```{r echo=FALSE}
-#df3 <- cor(df2, use="complete.obs", method="kendall") 
-library(knitr)
-data = read.table('cor.csv')
-kable(data)%>%
+df3 <- cor(newTable [2:9], use="complete.obs", method="kendall") 
+kable(df3)%>%
   kable_styling() %>%
   scroll_box(height = "300px")
 ```
 
 
-#資料分析
+## sum-up 
 
     原預期「床數」和「照護人員數」會呈現高度且正相關，但分析結果為：「床數」和「照護人員數」呈低度相關，其中最高的Nursing Staff 相關係數為0.287，再來是Service Man的0.191，剩下的Social Workers、Administrators呈現非常低度的負相關（幾乎可以說是無關）。
     不過可以觀察到，「床數」和「失能老年人口數」為高度正相關（0.784）。由此推論一地的機構床數會和當地的失能老年人口數成正比，但照護人員卻不會因為床數的多寡而有影響。
@@ -186,53 +213,69 @@ kable(data)%>%
 
     點的深淺代表每個照服員照護的人數（以總床數計）。高齡化嚴重的雲林縣在照護人力上相對充足，顏色越紅越缺乏照護人力。由此圖顯示照護人力缺口最大的地區為交通相對困難的離島澎湖及山地南投。
 
-###(ggmap is unavailable now)
+```{r pressure, echo=TRUE,message=FALSE, warning=FALSE}
+county_shp <- readOGR('/Users/chiacolate/Documents/R1052hw/R1052hw/LTCTaiwan/shapefiles', layer = "county", encoding = 'utf-8', stringsAsFactors = F)
+county_shp@data$COUNTYNAME <- iconv(county_shp@data$COUNTYNAME, "utf-8")
+str(county_shp@data)
+summary(county_shp)
+data<-read.csv("/Users/chiacolate/Documents/R1052hw/R1052hw/LTCTaiwan/4.csv",encoding = "big-5") 
 
-<a><img src="https://i.ibb.co/kKrj4tT/download.png" alt="download" border="0"></a>
-
-###(using rgeos)
-
-    區域顏色的深淺代表每個照服員照護的人數（以總床數計）多寡，顏色越紅越缺乏照護人力。由此圖顯示照護人力缺口最大的地區為交通相對困難的離島澎湖及山地南投。
-
-<a><img src="https://i.ibb.co/Jm2dTQw/rgeos.png" alt="rgeos" border="0"></a>
-
-
-
-
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
-library(ggplot2)
-#library(ggmap)
-library(mapproj)
-#ggmap(map) + 
-  #geom_point(aes(x = lon, y = lat, colour = 照服員照護人數, size = ratio),
-             #data = data) + scale_size(range = c(-6,11)) + scale_colour_gradient(low = "yellow", high = "red")+ labs(col = "No. of people to take care of")
-```
-
-```{r pressure, echo=FALSE}
-#data<-read.csv("/Users/chiacolate/Documents/R1052hw/R1052hw/LTCTaiwan/4.csv",encoding = "big-5") 
-
-#county_shp_df <- broom::tidy(county_shp, region = 'COUNTYNAME') %>%
-  #left_join(data, by = c('id' = 'county'))
-
+county_shp_df <- broom::tidy(county_shp, region = 'COUNTYNAME') %>%
+  left_join(data, by = c('id' = 'county'))
+data$lon <- data$WGS84Lon
+data$lat <- data$WGS84Lat
            
-#county_shp_df %>% 
-  #ggplot() + 
-    #geom_polygon(aes(x = long, y = lat, group = group, fill = people.to.take.care.of), colour = 'gray') + scale_size(range = c(-6,11)) +
-    #scale_fill_gradient2(high = "#FF8080", low = "#FFE1E0", midpoint = mean(data$people.to.take.care.of), name="number of people to take of\n(per person)") +
-    #theme(text=element_text(family="Heiti TC Light", size=14)) +
-    #ggplot2::coord_map(xlim = c(119, 122.5), ylim = c(21.8, 25.5)) +
-    #theme_void()
+county_shp_df %>% 
+  ggplot() + 
+    geom_polygon(aes(x = long, y = lat, group = group, fill = people.to.take.care.of), colour = 'gray') + scale_size(range = c(-6,11)) +
+    scale_fill_gradient2(high = "#F36380", low = "#FBBBC8", name="每一照服員照護人數")+
+    theme(text=element_text(family="Heiti TC Light", size=14)) +
+    ggplot2::coord_map(xlim = c(119, 122.5), ylim = c(21.8, 25.5))+
+  theme_void()+
+  theme(text=element_text(family="Gen Jyuu GothicX"),
+        plot.background=element_rect(fill="#f7f7f7"),
+        panel.background=element_rect(fill="#f7f7f7"),
+        panel.grid.major = element_line(size = 0.5, linetype = 'solid',
+                                colour = "white"), 
+        panel.grid.minor = element_line(size = 0.25, linetype = 'solid',
+                                colour = "white"))+
+  labs(x=NULL, 
+       y=NULL, 
+       title="各縣市照護壓力",
+       subtitle = "顏色越深壓力越大",
+       caption="Source: 衛福部") 
 
-#ggsave("rgeos.png", plot = last_plot(), device = NULL, path = NULL,
-  #scale = 1, width = NA, height = NA, units = c("in", "cm", "mm"),
-  #dpi = 300, limitsize = TRUE)
 
 ```
 
+```{r echo=TRUE,message=FALSE, warning=FALSE}
+county_shp_df %>% 
+  ggplot() + 
+    geom_polygon(aes(x = long, y = lat, group = group), colour = 'gray', fill='transparent') + ggplot2::coord_map(xlim = c(119, 122.5), ylim = c(21.8, 25.5)) +
+  geom_point(aes(x = lon, y = lat,color = data$people.to.take.care.of, size = data$ratio),data = data)+
+  scale_colour_gradient(low = "#FFFFFF", high = "#F36380",name="每一照服員照護人數")+
+  scale_size_continuous(name="老化比例")+
+    theme_void()+
+  theme(text=element_text(family="Gen Jyuu GothicX"),
+        plot.background=element_rect(fill="#f7f7f7"),
+        panel.background=element_rect(fill="#f7f7f7"),
+        panel.grid.major = element_line(size = 0.5, linetype = 'solid',
+                                colour = "white"), 
+        panel.grid.minor = element_line(size = 0.25, linetype = 'solid',
+                                colour = "white"))+
+  labs(x=NULL, 
+       y=NULL, 
+       title="各縣市照護壓力與老化程度", 
+       subtitle = "點越大老化程度越高、顏色越深照護壓力越大",
+       caption="Source: 衛福部") 
+
+```
+    
+    由此圖看來，照護壓力最大的地區在離島澎湖及山地南投，存在分配不均的狀況。而高齡化嚴重（點越大）區域如雲林、嘉義在照護壓力上相對沒那麼大。
 
 #長期照護系統資源不足、分配也不均
     
-    從失能老年人口數和床數的相關分析發現，住宿式機構床數明顯不足，也沒有增加照護人員補足，因此不管是在機構還是人員方面都是呈現資源短缺的狀態。長照服務的資源嚴重不足，而且分佈的不均，其次人力有待充實。政府的政策方面，照護人員雖然已經開班，但未來可能沒有辦法滿足真正有需要的人的需求，另外產業參與跟長照服務沒有辦法做出適切的搭配，無法照顧到偏遠的部落，最重要的整個資源沒有辦法整合。
+    從失能老年人口數和床數的相關分析發現，住宿式機構床數明顯不足，也沒有增加照護人員補足，因此不管是在機構還是人員方面都是呈現資源短缺的狀態。長照服務的資源嚴重不足，而且分佈不均，人力、物力有待充實。政府的政策方面，照護人員雖然已經開班，但未來可能沒有辦法滿足真正有需要的人的需求，另外產業參與跟長照服務沒有辦法做出適切的搭配，無法照顧到偏遠的部落，最重要的整個資源沒有辦法整合。
 
     在長照資源有限的前提下，地方政府必須針對各縣市之現況訂定最合適之長照政策：
     如政府應增設照護機構以滿足都市地區目前遞增之照護需求、針對照護病床缺額高的地區投入資金建設或鼓勵私人投資、對於照護人力缺口較高之縣市，政府應增開照護人員訓練班鼓勵當地居民投入長照。
